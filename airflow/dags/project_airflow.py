@@ -29,12 +29,12 @@ dag = DAG('project_airflow',
 
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
-#create_tables_task = PostgresOperator(
-#    task_id="create_tables",
-#    dag=dag,
-#    sql='create_tables.sql',
-#    postgres_conn_id="redshift",
-#)
+create_tables_task = PostgresOperator(
+    task_id="create_tables",
+    dag=dag,
+    sql='create_tables.sql',
+    postgres_conn_id="redshift",
+)
 
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
@@ -163,11 +163,9 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-#start_operator >> create_tables_task
-#create_tables_task >> stage_events_to_redshift
-#create_tables_task >> stage_songs_to_redshift
-start_operator >> stage_events_to_redshift
-start_operator >> stage_events_to_redshift
+start_operator >> create_tables_task
+create_tables_task >> stage_events_to_redshift
+create_tables_task >> stage_songs_to_redshift
 stage_events_to_redshift >> load_songplays_table
 stage_songs_to_redshift >> load_songplays_table
 load_songplays_table >> load_user_dimension_table
